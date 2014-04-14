@@ -7,7 +7,7 @@ var runningCount = 1;
 
 io.sockets.on('connection', function (socket) {
     
-    var id = "P"+(runningCount++);
+    var id = runningCount++;
     
     socket.emit('identify', id);
     
@@ -15,7 +15,8 @@ io.sockets.on('connection', function (socket) {
         socket.emit('add-player', {
           "id": players[p].id, 
           "position": players[p].position,
-          "velocity": players[p].velocity
+          "velocity": players[p].velocity,
+          "nickname": players[p].nickname
         });
     }
     
@@ -25,8 +26,14 @@ io.sockets.on('connection', function (socket) {
     socket.broadcast.emit('add-player', {
         "id": id, 
         "position": {"x": 0, "y": 0},
-        "velocity": {"x": 0, "y": 0}
+        "velocity": {"x": 0, "y": 0},
+        "nickname": player.nickname
       });
+    
+    socket.emit('update-nickname', {
+        "id": id,
+        "nickname": player.nickname
+    });
     
     socket.on('update-position', function (data) {
       player.position = data.position;
@@ -67,4 +74,5 @@ var Player = function(id, socket, x, y, vx, vy) {
   this.socket = socket;
   this.position = {"x": x, "y": y};
   this.velocity = {"x": vx, "y": vy};
+  this.nickname = "Guest-"+id;
 };
