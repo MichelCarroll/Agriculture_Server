@@ -1,4 +1,5 @@
 var io = require('socket.io').listen(7777);
+io.set('log level', 1);
 
 var players = [];
 
@@ -6,36 +7,64 @@ var runningCount = 1;
 
 io.sockets.on('connection', function (socket) {
     
-    var id = runningCount++;
+    var id = "P"+(runningCount++);
     
     socket.emit('identify', id);
     
     for(p in players) {
-        socket.emit('add-character', players[p].getData());
+        socket.emit('add-player', {
+          "id": players[p].id, 
+          "position": players[p].position,
+          "velocity": players[p].velocity
+        });
     }
     
-    var player = new Player(socket, 0, 0);
-    players.push(player);
+    var player = new Player(id, socket, 0, 0, 0, 0);
+    players[id] = player;
     
-    socket.on('bookkeep-position', function (data) {
-      player.x = data.x;
-      player.y = data.y;
+    socket.broadcast.emit('add-player', {
+        "id": id, 
+        "position": {"x": 0, "y": 0},
+        "velocity": {"x": 0, "y": 0}
+      });
+    
+    socket.on('update-position', function (data) {
+      player.position = data.position;
       
-      socket.broadcast.emit('bookkeep-position', player.getData());
+      socket.broadcast.emit('update-position', {
+          "id": id, 
+          "position": player.position
+      });
     });
     
+    socket.on('update-velocity', function (data) {
+      player.velocity = data.velocity;
+      
+      socket.broadcast.emit('update-velocity', {
+          "id": id, 
+          "velocity": player.velocity
+      });
+    });
+    
+    socket.on('disconnect', function () {
+      delete players[id];
+      socket.broadcast.emit('remove-player', {
+          "id": id
+      });
+    });
 });
 
-var Player = function(id, socket, x, y) {
+function printPlayerIndexes() {
+    var tmp = "";
+        for(i in players) {
+            tmp += ","+i;
+        }
+        console.log(tmp);
+}
+
+var Player = function(id, socket, x, y, vx, vy) {
   this.id = id;
   this.socket = socket;
-  this.x = x;
-  this.y = y;
-  this.getData = function() {
-      return {
-          "id": this.id,
-          "x": this.x,
-          "y": this.y
-      };
-  }
+  this.position = {"x": x, "y": y};
+  this.velocity = {"x": vx, "y": vy};
 };
