@@ -89,10 +89,10 @@ io.sockets.on('connection', function (socket) {
 
 function printPlayerIndexes() {
     var tmp = "";
-        for(i in players) {
-            tmp += ","+i;
-        }
-        console.log(tmp);
+    for(i in players) {
+        tmp += ","+i;
+    }
+    console.log(tmp);
 }
 
 var Player = function(id, socket, x, y, vx, vy) {
@@ -102,4 +102,3 @@ var Player = function(id, socket, x, y, vx, vy) {
   this.velocity = {"x": vx, "y": vy};
   this.nickname = "Guest-"+id;
 };
-
