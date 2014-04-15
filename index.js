@@ -1,9 +1,30 @@
+
+var fs = require('fs');
+
+
+var players = [];
+var maps = [];
+var firstMap = "grass";
+
+var runningCount = 1;
+
+//LOADING!!!
+console.log("Loading...");
+
+//MAPS
+loadMap("grass", "tilesets/grass.json");
+
 var io = require('socket.io').listen(7777);
 io.set('log level', 1);
 
-var players = [];
+console.log("Done loading. Ready to start taking players!");
 
-var runningCount = 1;
+function loadMap(name, filename) {
+    fs.readFile(filename, function(err, data) {
+        var tilexData = JSON.parse(data);
+        maps[name] = tilexData;
+    });
+}
 
 io.sockets.on('connection', function (socket) {
     
@@ -33,6 +54,11 @@ io.sockets.on('connection', function (socket) {
     socket.emit('update-nickname', {
         "id": id,
         "nickname": player.nickname
+    });
+    
+    socket.emit('update-map', {
+        "name": firstMap,
+        "tileset": maps[firstMap]
     });
     
     socket.on('update-position', function (data) {
@@ -76,3 +102,4 @@ var Player = function(id, socket, x, y, vx, vy) {
   this.velocity = {"x": vx, "y": vy};
   this.nickname = "Guest-"+id;
 };
+
