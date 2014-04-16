@@ -1,5 +1,12 @@
 
 var fs = require('fs');
+var connect = require('connect');
+
+//TEST
+connect()
+    .use(connect.static('public_html'))
+    .listen(7776);
+
 
 
 var players = [];
