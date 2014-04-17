@@ -66,9 +66,9 @@ function loadDoneHandler() {
         }
     });
 
-    var server_url = location.protocol.concat("//").concat(window.location.hostname);    
     
-    socket = io.connect(server_url+':7777');
+    socket = io.connect();
+    
     socket.on('identify', function (id) {
         player = addNewCharacter(id, 50,50,0,0,"");
         serverUpdatePosition();

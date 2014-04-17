@@ -1,13 +1,20 @@
 
 var fs = require('fs');
 var connect = require('connect');
+var express = require('express');
+var http = require('http');
 
-//TEST
-connect()
-    .use(connect.static('public_html'))
-    .listen(7776);
+var app = express();
+var server = http.createServer(app);
 
+app.use('/js', express.static(__dirname + '/public_html/js'));
+app.use('/images', express.static(__dirname + '/public_html/images'));
+app.get('/', function (req, res) {
+  res.sendfile(__dirname + '/public_html/index.html');
+});
 
+var port = process.env.PORT || 7777;
+server.listen(port);
 
 var players = [];
 var maps = [];
@@ -21,7 +28,7 @@ console.log("Loading...");
 //MAPS
 loadMap("grass", "tilesets/grass.json");
 
-var io = require('socket.io').listen(7777);
+var io = require('socket.io').listen(server);
 io.set('log level', 1);
 
 console.log("Done loading. Ready to start taking players!");
